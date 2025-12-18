@@ -7,7 +7,7 @@ const { execSync } = require('child_process');
 const { setGhaOutput } = require('./utils');
 // const { checkVSCodeVersion, checkBaseBranch } = require('./validation-utils');
 // const { checkBaseBranch } = require('./validation-utils');
-const logger = require('./logger-util');
+const logger = require('../logger-util');
 
 // This gets set in createReleaseBranch.yml
 // Can be major, minor [default], patch, beta
