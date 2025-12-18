@@ -5,16 +5,18 @@ on:
 
 jobs:
   generate_changelog:
-    name: 'Generate Changelog'
+    name: "Generate Changelog"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: 'develop'
+          # TODO: this might need to be the release branch
+          ref: "release/v65.10.0"
           ssh-strict: false
-          token: ${{ secrets.IDEE_GH_TOKEN }}
-          fetch-depth: '0' # Fetching tags will fail if it is not 0
+          # TODO: UNCOMMENT THIS TOKEN
+          # token: ${{ secrets.IDEE_GH_TOKEN }}
+          fetch-depth: "0" # Fetching tags will fail if it is not 0
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -25,5 +27,6 @@ jobs:
       - run: npm ci
       - name: Generate CHANGELOG
         run: npm run changelog
+      # TODO: WHERE DOES THIS GET WRITTEN TO???
       - id: result
         run: echo "result=${{ job.status }}" >> $GITHUB_OUTPUT

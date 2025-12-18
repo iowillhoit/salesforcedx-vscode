@@ -53,9 +53,7 @@ jobs:
       - name: Set git config
         uses: ./.github/actions/gitConfig
         with:
-          # TODO: UNCOMMENT EMAIL
-          # email: ${{ secrets.IDEE_GH_EMAIL }}
-          email: foo@example.com
+          email: ${{ secrets.IDEE_GH_EMAIL }}
 
       - name: Determine next nightly version
         id: determine_next_nightly_version
