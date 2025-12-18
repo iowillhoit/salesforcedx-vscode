@@ -41,7 +41,8 @@ jobs:
         with:
           ref: "main"
           ssh-strict: false
-          token: ${{ secrets.IDEE_GH_TOKEN }}
+          # TODO: reenable
+          # token: ${{ secrets.IDEE_GH_TOKEN }}
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
