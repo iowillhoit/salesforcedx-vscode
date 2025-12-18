@@ -15,6 +15,7 @@ const logger = require('../logger-util');
 // const RELEASE_TYPE = process.env['RELEASE_TYPE'];
 
 // TODO: This should be moved to a util, it will need to be reused.
+// TODO: If we remove it, it needs to be able to correctly get the packagesDir (cause nested scripts/ dirs)
 // Check if package is set up to publish
 // -> pjson has a vscode:publish script to publish an extension, OR...
 // -> pjson has a publishConfig object for publishing to npm
@@ -22,7 +23,7 @@ const shouldUpdateVersion = pkgJson => pkgJson.scripts?.['vscode:publish'] || pk
 
 // Update version only in packages that publish (extensions + npm packages)
 const updatePackageVersions = nextVersion => {
-  const packagesDir = path.join(__dirname, '..', 'packages');
+  const packagesDir = path.join(__dirname, '..', '..', 'packages');
   const packages = fs.readdirSync(packagesDir).filter(dir => {
     const pkgPath = path.join(packagesDir, dir, 'package.json');
     return fs.existsSync(pkgPath);
