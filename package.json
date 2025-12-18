@@ -115,6 +115,7 @@
     "compile:watch": "npm run compile && tsc --build --watch",
     "lint": "wireit",
     "test": "wireit",
+    "test:scripts": "jest --config scripts/jest.config.js",
     "test-vsix": "ts-node scripts/installVSIXFromBranch.ts code",
     "coverage:report": "shx mkdir -p ./test-results && npm run coverage:merge && nyc report --reporter=html --report-dir=./test-results/coverage-report --temp-dir=coverage",
     "coverage:merge": "node scripts/mergeCoverageJson.mjs",
