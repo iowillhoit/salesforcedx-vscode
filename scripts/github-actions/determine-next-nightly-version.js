@@ -9,7 +9,10 @@ const {
 } = require('./utils')
 
 // FYI: 'vscjava.vscode-java-pack' has prerelease versions for testing
-const latestPreReleaseInMarketplace = getLatestPreReleaseVersionFromMarketplace('salesforce.salesforcedx-vscode');
+// TODO: UNCOMMENT.
+// TODO: faking prerelease for testing (since it doesnt exist yet)
+// const latestPreReleaseInMarketplace = getLatestPreReleaseVersionFromMarketplace('salesforce.salesforcedx-vscode');
+const latestPreReleaseInMarketplace = '65.9.1';
 const currentVersionInMain = require('../../packages/salesforcedx-vscode/package.json').version;
 
 const main = parseSemver(currentVersionInMain);
