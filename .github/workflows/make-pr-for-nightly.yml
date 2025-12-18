@@ -39,7 +39,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: "main"
+          # TODO: Change this to 'main'
+          # NOTE: all of these workflows and scripts will need to be in main for this to work
+          ref: "develop"
           ssh-strict: false
           # TODO: reenable
           # token: ${{ secrets.IDEE_GH_TOKEN }}
