@@ -74,6 +74,8 @@ jobs:
           node scripts/github-actions/create-release-pr.js
         env:
           NIGHTLY_VERSION: ${{ steps.determine_next_nightly_version.outputs.new_nightly_version }}
+          # TODO: This token is required to use 'gh' to create the PR. Update it to be the IDEE token
+          GH_TOKEN: ${{ github.token }}
 
       - name: Set job status
         id: result
