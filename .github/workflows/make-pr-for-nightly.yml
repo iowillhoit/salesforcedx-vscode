@@ -51,7 +51,9 @@ jobs:
       - name: Set git config
         uses: ./.github/actions/gitConfig
         with:
-          email: ${{ secrets.IDEE_GH_EMAIL }}
+          # TODO: UNCOMMENT EMAIL
+          # email: ${{ secrets.IDEE_GH_EMAIL }}
+          email: foo@example.com
 
       - name: Determine next nightly version
         id: determine_next_nightly_version
@@ -91,18 +93,18 @@ jobs:
       # - run: echo “Release Type is ${{ github.event.inputs.releaseType || 'minor' }}”
       # - run: echo “Release Branch is ${{ steps.branch.outputs.branch }}”
 
-  slack_notification:
-    if: ${{ always() }}
-    needs: create_pull_request
-    uses: ./.github/workflows/slackNotification.yml
-    secrets: inherit
-    with:
-      title: "Pull Request created for ${{ needs.create_pull_request.outputs.version }}"
-      failedEvent: "Create Pull Request for Nightly Release"
-      successfulEvent: "PR Created: ${{ needs.create_pull_request.outputs.release_pr_url }}"
-      type: "created"
-      result: ${{ needs.create_pull_request.outputs.result }}
-      workflow: "make-pr-for-nightly.yml"
+  # slack_notification:
+  #   if: ${{ always() }}
+  #   needs: create_pull_request
+  #   uses: ./.github/workflows/slackNotification.yml
+  #   secrets: inherit
+  #   with:
+  #     title: "Pull Request created for ${{ needs.create_pull_request.outputs.version }}"
+  #     failedEvent: "Create Pull Request for Nightly Release"
+  #     successfulEvent: "PR Created: ${{ needs.create_pull_request.outputs.release_pr_url }}"
+  #     type: "created"
+  #     result: ${{ needs.create_pull_request.outputs.result }}
+  #     workflow: "make-pr-for-nightly.yml"
 
   trigger_generate_changelog_workflow:
     if: ${{ needs.create_pull_request.result == 'success' }}
