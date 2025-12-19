@@ -14,8 +14,7 @@ jobs:
           # TODO: this might need to be the release branch
           ref: "release/v65.10.0"
           ssh-strict: false
-          # TODO: UNCOMMENT THIS TOKEN
-          # token: ${{ secrets.IDEE_GH_TOKEN }}
+          token: ${{ secrets.IDEE_GH_TOKEN }}
           fetch-depth: "0" # Fetching tags will fail if it is not 0
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -24,9 +23,13 @@ jobs:
       - uses: ./.github/actions/gitConfig
         with:
           email: ${{ secrets.IDEE_GH_EMAIL }}
-      - run: npm ci
+
+      - name: Run npm ci
+        run: npm ci
+
       - name: Generate CHANGELOG
         run: npm run changelog
-      # TODO: WHERE DOES THIS GET WRITTEN TO???
-      - id: result
+
+      - name: Set job result
+        id: result
         run: echo "result=${{ job.status }}" >> $GITHUB_OUTPUT

@@ -28,8 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
-      # release_type: ${{ github.event.inputs.releaseType || 'minor' }}
-      # branch: ${{ steps.branch.outputs.branch }}
+      branch: ${{ steps.branch.outputs.branch }}
       result: ${{ steps.result.outputs.result }}
       release_pr_url: ${{ steps.release_pr_url.outputs.pr_url }}
     # env:
@@ -43,8 +42,7 @@ jobs:
           # NOTE: all of these workflows and scripts will need to be in main for this to work
           ref: "develop"
           ssh-strict: false
-          # TODO: reenable
-          # token: ${{ secrets.IDEE_GH_TOKEN }}
+          token: ${{ secrets.IDEE_GH_TOKEN }}
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -72,8 +70,8 @@ jobs:
           node scripts/github-actions/create-release-pr.js
         env:
           NIGHTLY_VERSION: ${{ steps.determine_next_nightly_version.outputs.new_nightly_version }}
-          # TODO: This token is required to use 'gh' to create the PR. Update it to be the IDEE token
-          GH_TOKEN: ${{ github.token }}
+          # Token is required to use 'gh' to create the PR
+          GH_TOKEN: ${{ secrets.IDEE_GH_TOKEN }}
 
       - name: Set job status
         id: result
@@ -87,13 +85,9 @@ jobs:
         id: release_pr_url
         run: echo "pr_url"=${{ steps.create_release_pull_request.outputs.pr_url }}
 
-      # TODO: Set PR url in output?
-
-      # - id: branch
-      # run: echo "branch=release/v${{ steps.version.outputs.version }}" >> $GITHUB_OUTPUT
-      # - run: echo "Release Version is ${{ steps.determine_next_nightly_version.outputs.new_nightly_version }}"
-      # - run: echo “Release Type is ${{ github.event.inputs.releaseType || 'minor' }}”
-      # - run: echo “Release Branch is ${{ steps.branch.outputs.branch }}”
+      - name: Set Release Branch
+        id: branch
+        run: echo "branch=release/v${{ steps.version.outputs.version }}" >> $GITHUB_OUTPUT
 
   # slack_notification:
   #   if: ${{ always() }}
@@ -108,6 +102,7 @@ jobs:
   #     result: ${{ needs.create_pull_request.outputs.result }}
   #     workflow: "make-pr-for-nightly.yml"
 
+  # TODO: Pass in release branch
   trigger_generate_changelog_workflow:
     if: ${{ needs.create_pull_request.result == 'success' }}
     needs: create_pull_request
