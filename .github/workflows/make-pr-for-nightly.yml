@@ -1,9 +1,6 @@
 name: make-pr-for-nightly
 
 on:
-  # TODO: Is this needed? Ask the team
-  # repository_dispatch:
-  #   types: [create_release_branch]
   schedule:
     # Daily at:
     # 6pm MST
@@ -28,11 +25,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
-      # branch: ${{ steps.branch.outputs.branch }}
       result: ${{ steps.result.outputs.result }}
       release_pr_url: ${{ steps.release_pr_url.outputs.pr_url }}
-    # env:
-    #   RELEASE_TYPE: ${{ github.event.inputs.releaseType || 'minor' }}
 
     steps:
       - name: Checkout
@@ -89,31 +83,15 @@ jobs:
         id: release_pr_url
         run: echo "pr_url"=${{ steps.create_release_pull_request.outputs.pr_url }}
 
-      # - name: Set Release Branch
-      #   id: branch
-      #   run: echo "branch=release/v${{ steps.version.outputs.version }}" >> $GITHUB_OUTPUT
-
-  # TODO: Create your own Slack Webhook url
-  # slack_notification:
-  #   if: ${{ always() }}
-  #   needs: create_pull_request
-  #   uses: ./.github/workflows/slackNotification.yml
-  #   secrets: inherit
-  #   with:
-  #     title: "Pull Request created for ${{ needs.create_pull_request.outputs.version }}"
-  #     failedEvent: "Create Pull Request for Nightly Release"
-  #     successfulEvent: "PR Created: ${{ needs.create_pull_request.outputs.release_pr_url }}"
-  #     type: "created"
-  #     result: ${{ needs.create_pull_request.outputs.result }}
-  #     workflow: "make-pr-for-nightly.yml"
-
-  # TODO: Pass in release branch
-  # trigger_generate_changelog_workflow:
-  #   if: ${{ needs.create_pull_request.result == 'success' }}
-  #   needs: create_pull_request
-  #   name: "Trigger Generate Changelog Workflow"
-  #   # TODO: Look into how this runs...
-  #   #       This runs after the branch was created
-  #   #       ...this might need to be moved up
-  #   uses: ./.github/workflows/generateChangelog.yml
-  #   secrets: inherit
+  slack_notification:
+    if: ${{ always() }}
+    needs: create_pull_request
+    uses: ./.github/workflows/slackNotification.yml
+    secrets: inherit
+    with:
+      title: "Pull Request created for ${{ needs.create_pull_request.outputs.version }}"
+      failedEvent: "Create Pull Request for Nightly Release"
+      successfulEvent: "PR Created: ${{ needs.create_pull_request.outputs.release_pr_url }}"
+      type: "created"
+      result: ${{ needs.create_pull_request.outputs.result }}
+      workflow: "make-pr-for-nightly.yml"
