@@ -1,0 +1,100 @@
+name: make-pr-for-nightly
+
+on:
+  schedule:
+    # Daily at:
+    # 6pm MST
+    # 7pm MST
+    # 8pm CST
+    # 9pm EST
+    # 11pm ARG
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+    inputs:
+      newMajor:
+        description: "Next major for nightly (e.g. 66) Safeguard: Can only be 1 greater than current majors"
+        type: string
+      forceNewMajor:
+        description: "Bypass newMajor checks. Don't use unless you know what you're doing."
+        type: boolean
+        default: false
+
+jobs:
+  create_pull_request:
+    name: "Create Pull Request for Nightly Release"
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      result: ${{ steps.result.outputs.result }}
+      release_pr_url: ${{ steps.release_pr_url.outputs.pr_url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # TODO: Change this to 'main'
+          # NOTE: all of these workflows and scripts will need to be in main for this to work
+          ref: "develop"
+          # Fetch-depth 0 will also fetch tags (needed for changelogs)
+          fetch-depth: 0
+          ssh-strict: false
+          token: ${{ secrets.IDEE_GH_TOKEN }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ vars.NODE_VERSION || 'lts/*' }}
+
+      - name: Set git config
+        uses: ./.github/actions/gitConfig
+        with:
+          email: ${{ secrets.IDEE_GH_EMAIL }}
+
+      - name: Determine next nightly version
+        id: determine_next_nightly_version
+        run: node scripts/github-actions/determine-next-nightly-version.js
+        env:
+          NEW_MAJOR: ${{ github.event.inputs.newMajor }}
+          FORCE_NEW_MAJOR: ${{ github.event.inputs.forceNewMajor || 'false' }}
+
+      - name: Run npm ci
+        run: npm ci
+
+      - name: Create release pull request
+        id: create_release_pull_request
+        run: |
+          echo "Creating a release pull request for ${NIGHTLY_VERSION}"
+          node scripts/github-actions/create-release-pr.js
+        env:
+          NIGHTLY_VERSION: ${{ steps.determine_next_nightly_version.outputs.new_nightly_version }}
+          GH_TOKEN: ${{ secrets.IDEE_GH_TOKEN }} # Token is required to use 'gh' to create the PR
+
+      - name: Generate CHANGELOG
+        run: npm run changelog
+
+      - name: Set job status
+        id: result
+        run: echo "result=${{ job.status }}" >> $GITHUB_OUTPUT
+
+      - name: Set new nightly version
+        id: version
+        run: echo "version=${{ steps.determine_next_nightly_version.outputs.new_nightly_version }}" >> $GITHUB_OUTPUT
+
+      - name: Set Release PR Url
+        id: release_pr_url
+        run: echo "pr_url"=${{ steps.create_release_pull_request.outputs.pr_url }}
+
+  slack_notification:
+    if: ${{ always() }}
+    needs: create_pull_request
+    uses: ./.github/workflows/slackNotification.yml
+    secrets: inherit
+    with:
+      title: "Pull Request created for ${{ needs.create_pull_request.outputs.version }}"
+      failedEvent: "Create Pull Request for Nightly Release"
+      # TODO: this success event does not show up in the webhook post
+      # hm, here are docs https://github.com/slackapi/slack-github-action/tree/1.x
+      # Maybe the VSCode team does something special here... Maybe it is not a standard incoming webhook
+      successfulEvent: "PR Created: ${{ needs.create_pull_request.outputs.release_pr_url }}"
+      type: "created"
+      result: ${{ needs.create_pull_request.outputs.result }}
+      workflow: "make-pr-for-nightly.yml"
