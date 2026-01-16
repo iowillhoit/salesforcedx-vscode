@@ -20,6 +20,7 @@ jobs:
         with:
           max_attempts: 30
           retry_wait_seconds: 120 # 30 attempts every two minutes
+          # TODO: UPDATE THIS
           command: sf-release cli:release:automerge --owner iowillhoit --repo salesforcedx-vscode --pull-number ${{ github.event.pull_request.number }} --verbose
           retry_on: error
         env:
