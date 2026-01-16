@@ -91,6 +91,9 @@ jobs:
     with:
       title: "Pull Request created for ${{ needs.create_pull_request.outputs.version }}"
       failedEvent: "Create Pull Request for Nightly Release"
+      # TODO: this success event does not show up in the webhook post
+      # hm, here are docs https://github.com/slackapi/slack-github-action/tree/1.x
+      # Maybe the VSCode team does something special here... Maybe it is not a standard incoming webhook
       successfulEvent: "PR Created: ${{ needs.create_pull_request.outputs.release_pr_url }}"
       type: "created"
       result: ${{ needs.create_pull_request.outputs.result }}

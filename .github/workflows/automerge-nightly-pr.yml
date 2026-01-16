@@ -1,0 +1,26 @@
+name: automerge-nightly-pr
+
+on:
+  pull_request:
+    types: [labeled]
+
+# This job relies on defining required checks in your branch protection settings
+# Settings > Branches > 'main' > Require status checks to pass before merging
+
+jobs:
+  automerge:
+    runs-on: ubuntu-latest
+    if: startsWith(github.event.pull_request.title, 'Release PR for') && endsWith(github.event.pull_request.title, 'as nightly')
+    steps:
+      - name: Install plugin-release-management
+        run: npm install -g @salesforce/plugin-release-management@dev --omit=dev
+
+      - name: Automerge
+        uses: salesforcecli/github-workflows/.github/actions/retry@main
+        with:
+          max_attempts: 30
+          retry_wait_seconds: 120 # 30 attempts every two minutes
+          command: sf-release cli:release:automerge --owner iowillhoit --repo salesforcedx-vscode --pull-number ${{ github.event.pull_request.number }} --verbose
+          retry_on: error
+        env:
+          GITHUB_TOKEN: ${{ secrets.IDEE_GH_TOKEN }}
